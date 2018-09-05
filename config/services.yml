@@ -1,0 +1,45 @@
+imports: {  }
+parameters:
+    default.namespace:
+        - Oasis\Mlib\
+        - Vendor\XcDataProcessor\
+services:
+    app:
+        properties:
+            logging:
+                path: '%app.dir.log%'
+                level: debug
+            cli:
+                name: xc-data-processor
+                version: '0.1'
+            http:
+                cache_dir: '%app.dir.cache%'
+                routing:
+                    path: '%app.dir.config%/routes.yml'
+                    namespaces:
+                        - Vendor\XcDataProcessor\
+                        - Vendor\XcDataProcessor\Controllers\
+                twig:
+                    template_dir: '%app.dir.template%'
+                    globals:
+                        app: '@app'
+                injected_args:
+                    - '@item_manager'
+    memcached:
+        class: Memcached
+        calls:
+            -
+                - addServer
+                -
+                    - '%app.memcached.host%'
+                    - '%app.memcached.port%'
+    entity_manager:
+        class: Doctrine\ORM\EntityManager
+        factory:
+            - Vendor\XcDataProcessor\Database\XcDataProcessorDatabase
+            - getEntityManager
+    item_manager:
+        class: Oasis\Mlib\ODM\Dynamodb\ItemManager
+        factory:
+            - Vendor\XcDataProcessor\Database\XcDataProcessorDatabase
+            - getItemManager
